@@ -116,10 +116,10 @@
         }
     </style>
 </head>
-<body class="antialiased selection:bg-brand selection:text-white">
+<body class="antialiased selection:bg-brand selection:text-white overflow-x-hidden">
 
     <!-- Navigation -->
-    <nav id="navbar" class="fixed w-full z-50 transition-all duration-500 py-6 border-b border-transparent">
+    <nav id="navbar" class="fixed w-full z-40 transition-all duration-500 py-6 border-b border-transparent">
         <div class="container mx-auto px-6 md:px-12 flex justify-between items-center relative z-10">
             <a href="#" class="flex items-center">
                 <img src="logo.png" alt="Batel Móveis Planejados" class="h-10 md:h-12 w-auto logo-shadow transition-all">
@@ -144,17 +144,31 @@
                 </button>
             </div>
         </div>
-
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white absolute top-full left-0 w-full border-t border-gray-100 shadow-2xl z-10">
-            <div class="flex flex-col px-6 py-4 space-y-4 font-medium">
-                <a href="#sobre" class="text-gray-800 hover:text-brand transition-colors block py-2">Sobre</a>
-                <a href="#servicos" class="text-gray-800 hover:text-brand transition-colors block py-2">Serviços</a>
-                <a href="#projetos" class="text-gray-800 hover:text-brand transition-colors block py-2">Projetos</a>
-                <a href="#contato" class="text-gray-800 hover:text-brand transition-colors block py-2">Contato</a>
-            </div>
-        </div>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/60 z-50 hidden transition-opacity duration-300 opacity-0"></div>
+
+    <!-- Mobile Menu Side Drawer -->
+    <div id="mobile-menu" class="fixed top-0 right-0 h-full w-72 bg-white shadow-2xl z-[60] transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <div class="flex justify-between items-center p-6 border-b border-gray-100">
+            <span class="font-serif font-bold text-brand text-2xl">Menu</span>
+            <button id="mobile-menu-close" class="text-gray-400 text-2xl hover:text-brand transition-colors p-2">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="flex flex-col px-6 py-6 space-y-6 font-medium">
+            <a href="#sobre" class="text-gray-800 hover:text-brand transition-colors block text-lg">Sobre</a>
+            <a href="#servicos" class="text-gray-800 hover:text-brand transition-colors block text-lg">Serviços</a>
+            <a href="#projetos" class="text-gray-800 hover:text-brand transition-colors block text-lg">Projetos</a>
+            <a href="#contato" class="text-gray-800 hover:text-brand transition-colors block text-lg">Contato</a>
+        </div>
+        <div class="mt-auto p-6 border-t border-gray-100">
+            <a href="https://wa.me/5541996318510" target="_blank" class="w-full bg-brand text-white px-6 py-4 rounded-full text-sm font-bold flex justify-center items-center gap-2 shadow-lg hover:shadow-xl hover:bg-brand-dark transition-all">
+                <i class="fab fa-whatsapp text-lg"></i> Fazer Orçamento
+            </a>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero-bg h-screen flex items-center justify-center text-center px-4 relative overflow-hidden">
@@ -439,28 +453,59 @@
             }
         });
 
-        // Mobile Menu Logic
+        // Mobile Menu Drawer Logic
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenuCloseBtn = document.getElementById('mobile-menu-close');
         const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
         const mobileLinks = mobileMenu.querySelectorAll('a');
 
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+        function openMenu() {
+            // Show overlay
+            mobileMenuOverlay.classList.remove('hidden');
+            // Tiny delay to allow display block to apply before changing opacity
+            setTimeout(() => {
+                mobileMenuOverlay.classList.remove('opacity-0');
+            }, 10);
+            
+            // Slide in menu
+            mobileMenu.classList.remove('translate-x-full');
+            mobileMenu.classList.add('translate-x-0');
+            
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMenu() {
+            // Slide out menu
+            mobileMenu.classList.add('translate-x-full');
+            mobileMenu.classList.remove('translate-x-0');
+            
+            // Hide overlay
+            mobileMenuOverlay.classList.add('opacity-0');
+            setTimeout(() => {
+                mobileMenuOverlay.classList.add('hidden');
+            }, 300); // Matches transition duration
+            
+            // Restore body scroll
+            document.body.style.overflow = '';
+        }
+
+        mobileMenuBtn.addEventListener('click', openMenu);
+        mobileMenuCloseBtn.addEventListener('click', closeMenu);
+        mobileMenuOverlay.addEventListener('click', closeMenu);
 
         mobileLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                mobileMenu.classList.add('hidden'); // Close menu on click
-            });
+            link.addEventListener('click', closeMenu);
         });
 
         // Initialize AOS animations - Smooth configuration
         AOS.init({
-            once: true,          // whether animation should happen only once - while scrolling down
-            offset: 80,          // offset (in px) from the original trigger point
-            duration: 1200,      // values from 0 to 3000, with step 50ms
-            easing: 'ease-out-cubic', // default easing for AOS animations
-            delay: 100,          // values from 0 to 3000, with step 50ms
+            once: true,
+            offset: 80,
+            duration: 1200,
+            easing: 'ease-out-cubic',
+            delay: 100,
         });
     </script>
 </body>
